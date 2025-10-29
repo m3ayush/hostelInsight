@@ -1,0 +1,73 @@
+import React, { useState, useEffect } from 'react';
+import { db } from '../../firebase';
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { FeedbackRecord } from '../../types';
+import Icon from '../icons/IconMap';
+
+interface FeedbackViewProps {
+    setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
+}
+
+const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
+    <div className="flex">
+        {[1, 2, 3, 4, 5].map((star) => (
+            <Icon key={star} name="Feedback" className={`h-5 w-5 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`} />
+        ))}
+    </div>
+);
+
+
+const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification }) => {
+    const [feedback, setFeedback] = useState<FeedbackRecord[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!db) return;
+        const q = query(collection(db, 'feedback'), orderBy('createdAt', 'desc'));
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const feedbackData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FeedbackRecord));
+            setFeedback(feedbackData);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching feedback:", error);
+            setNotification({ message: 'Failed to fetch feedback.', type: 'error' });
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [setNotification]);
+
+    if (loading) {
+        return <div className="text-center p-8">Loading feedback...</div>;
+    }
+
+    return (
+        <div className="bg-white p-6 rounded-lg shadow-md">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">All Student Feedback</h2>
+            {feedback.length === 0 ? (
+                <p className="text-gray-500">No feedback has been submitted yet.</p>
+            ) : (
+                <div className="space-y-4">
+                    {feedback.map(item => (
+                        <div key={item.id} className="border border-gray-200 p-4 rounded-lg">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="font-semibold text-gray-800">{item.category}</p>
+                                    <p className="text-sm text-gray-500">By: {item.userName}</p>
+                                    <div className="mt-1">
+                                        <StarRating rating={item.rating} />
+                                    </div>
+                                </div>
+                                <span className="text-xs text-gray-400">{item.createdAt?.toDate().toLocaleString()}</span>
+                            </div>
+                            {item.comment && <p className="mt-2 text-gray-700 italic">"{item.comment}"</p>}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default FeedbackView;

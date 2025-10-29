@@ -1,0 +1,5 @@
+{
+  "name": "HostelInsight",
+  "description": "A modern and intuitive web application for booking and managing hostel rooms and services for students. It includes features for room booking, mess menu viewing, complaints, and feedback.",
+  "requestFramePermissions": []
+}
