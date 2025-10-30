@@ -20,6 +20,11 @@ import Feedback from './components/Feedback';
 import NotificationModal from './components/NotificationModal';
 import AdminDashboard from './components/admin/AdminDashboard';
 import LaundryService from './components/LaundryService';
+import PersonalDetails from './components/PersonalDetails';
+import RoomChangeRequests from './components/admin/RoomChangeRequests';
+import ComplaintsView from './components/admin/ComplaintsView';
+import FeedbackView from './components/admin/FeedbackView';
+import StudentDatabase from './components/admin/StudentDatabase';
 
 
 const FirebaseNotConfigured: React.FC = () => {
@@ -102,13 +107,19 @@ const App: React.FC = () => {
             const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
                 setUser(currentUser);
                 if (currentUser) {
-                    setIsAdmin(currentUser.email === ADMIN_EMAIL);
-                    fetchHostelData();
-                    if(currentUser.email !== ADMIN_EMAIL) {
+                    const isAdminUser = currentUser.email === ADMIN_EMAIL;
+                    setIsAdmin(isAdminUser);
+                    fetchHostelData(); // Always fetch for both user types
+                    if (isAdminUser) {
+                        setPage(Page.AdminDashboard);
+                    } else {
+                        setPage(Page.Dashboard);
                         fetchUserBooking(currentUser.uid);
                     }
                 } else {
                     setIsAdmin(false);
+                    setPage(Page.Dashboard); // Reset page on logout
+                    setUserBooking(null);
                 }
                 setLoading(false);
             });
@@ -279,10 +290,9 @@ const App: React.FC = () => {
 
     const renderPage = () => {
         if (!user) return null;
-        if (isAdmin) {
-             return <AdminDashboard setNotification={setNotification} onApproveRoomChange={handleApproveRoomChange} />;
-        }
+    
         switch (page) {
+            // Student Pages
             case Page.Dashboard:
                 return <Dashboard navigateTo={navigateTo} userName={user.displayName || user.email || 'User'} needsSeeding={needsSeeding} onSeedData={handleSeedData} userBooking={userBooking}/>;
             case Page.RoomBooking:
@@ -297,8 +307,25 @@ const App: React.FC = () => {
                 return <Feedback navigateTo={navigateTo} user={user} setNotification={setNotification} />;
             case Page.LaundryService:
                 return <LaundryService navigateTo={navigateTo} user={user} setNotification={setNotification} floors={floors} userBooking={userBooking} />;
+            case Page.PersonalDetails:
+                return <PersonalDetails navigateTo={navigateTo} user={user} setNotification={setNotification} />;
+            
+            // Admin Pages
+            case Page.AdminDashboard:
+                return <AdminDashboard navigateTo={navigateTo} />;
+            case Page.AdminRoomChangeRequests:
+                return <RoomChangeRequests setNotification={setNotification} onApproveRoomChange={handleApproveRoomChange} navigateTo={navigateTo} />;
+            case Page.AdminComplaints:
+                return <ComplaintsView setNotification={setNotification} navigateTo={navigateTo} />;
+            case Page.AdminFeedback:
+                return <FeedbackView setNotification={setNotification} navigateTo={navigateTo} />;
+            case Page.AdminStudentDatabase:
+                return <StudentDatabase setNotification={setNotification} navigateTo={navigateTo} />;
+                
             default:
-                return <Dashboard navigateTo={navigateTo} userName={user.displayName || user.email || 'User'} needsSeeding={needsSeeding} onSeedData={handleSeedData} userBooking={userBooking} />;
+                return isAdmin 
+                    ? <AdminDashboard navigateTo={navigateTo} /> 
+                    : <Dashboard navigateTo={navigateTo} userName={user.displayName || user.email || 'User'} needsSeeding={needsSeeding} onSeedData={handleSeedData} userBooking={userBooking} />;
         }
     };
 

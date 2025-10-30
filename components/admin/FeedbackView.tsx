@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
-import { FeedbackRecord } from '../../types';
+import { FeedbackRecord, Page } from '../../types';
 import Icon from '../icons/IconMap';
 
 interface FeedbackViewProps {
     setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
+    navigateTo: (page: Page) => void;
 }
 
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
@@ -17,7 +18,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
 );
 
 
-const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification }) => {
+const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification, navigateTo }) => {
     const [feedback, setFeedback] = useState<FeedbackRecord[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -43,29 +44,34 @@ const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification }) => {
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">All Student Feedback</h2>
-            {feedback.length === 0 ? (
-                <p className="text-gray-500">No feedback has been submitted yet.</p>
-            ) : (
-                <div className="space-y-4">
-                    {feedback.map(item => (
-                        <div key={item.id} className="border border-gray-200 p-4 rounded-lg">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="font-semibold text-gray-800">{item.category}</p>
-                                    <p className="text-sm text-gray-500">By: {item.userName}</p>
-                                    <div className="mt-1">
-                                        <StarRating rating={item.rating} />
+        <div>
+            <button onClick={() => navigateTo(Page.AdminDashboard)} className="mb-6 text-violet-600 hover:text-violet-800 font-semibold">
+                &larr; Back to Dashboard
+            </button>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">All Student Feedback</h2>
+                {feedback.length === 0 ? (
+                    <p className="text-gray-500">No feedback has been submitted yet.</p>
+                ) : (
+                    <div className="space-y-4">
+                        {feedback.map(item => (
+                            <div key={item.id} className="border border-gray-200 p-4 rounded-lg">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{item.category}</p>
+                                        <p className="text-sm text-gray-500">By: {item.userName}</p>
+                                        <div className="mt-1">
+                                            <StarRating rating={item.rating} />
+                                        </div>
                                     </div>
+                                    <span className="text-xs text-gray-400">{item.createdAt?.toDate().toLocaleString()}</span>
                                 </div>
-                                <span className="text-xs text-gray-400">{item.createdAt?.toDate().toLocaleString()}</span>
+                                {item.comment && <p className="mt-2 text-gray-700 italic">"{item.comment}"</p>}
                             </div>
-                            {item.comment && <p className="mt-2 text-gray-700 italic">"{item.comment}"</p>}
-                        </div>
-                    ))}
-                </div>
-            )}
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

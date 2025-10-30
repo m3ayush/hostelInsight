@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, onSnapshot, doc, updateDoc, query, where, orderBy } from 'firebase/firestore';
-import { RoomChangeRequest } from '../../types';
+import { Page, RoomChangeRequest } from '../../types';
 
 interface RoomChangeRequestsProps {
     setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
     onApproveRoomChange: (request: RoomChangeRequest) => Promise<void>;
+    navigateTo: (page: Page) => void;
 }
 
-const RoomChangeRequests: React.FC<RoomChangeRequestsProps> = ({ setNotification, onApproveRoomChange }) => {
+const RoomChangeRequests: React.FC<RoomChangeRequestsProps> = ({ setNotification, onApproveRoomChange, navigateTo }) => {
     const [requests, setRequests] = useState<RoomChangeRequest[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -46,39 +47,44 @@ const RoomChangeRequests: React.FC<RoomChangeRequestsProps> = ({ setNotification
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Pending Room Change Requests</h2>
-            {requests.length === 0 ? (
-                <p className="text-gray-500">No pending room change requests.</p>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Room</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferred Room</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {requests.map(req => (
-                                <tr key={req.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{req.userName}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${req.currentRoom.roomName}, Floor ${req.currentRoom.floorNumber}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{req.preferredRoom ? `${req.preferredRoom.roomName}, Floor ${req.preferredRoom.floorNumber}` : 'N/A'}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{req.reason}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        <button onClick={() => onApproveRoomChange(req)} className="text-green-600 hover:text-green-900 bg-green-100 px-3 py-1 rounded-md">Approve</button>
-                                        <button onClick={() => handleRejectRequest(req.id)} className="text-red-600 hover:text-red-900 bg-red-100 px-3 py-1 rounded-md">Reject</button>
-                                    </td>
+        <div>
+            <button onClick={() => navigateTo(Page.AdminDashboard)} className="mb-6 text-violet-600 hover:text-violet-800 font-semibold">
+                &larr; Back to Dashboard
+            </button>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">Pending Room Change Requests</h2>
+                {requests.length === 0 ? (
+                    <p className="text-gray-500">No pending room change requests.</p>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Room</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preferred Room</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {requests.map(req => (
+                                    <tr key={req.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{req.userName}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{`${req.currentRoom.roomName}, Floor ${req.currentRoom.floorNumber}`}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{req.preferredRoom ? `${req.preferredRoom.roomName}, Floor ${req.preferredRoom.floorNumber}` : 'N/A'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{req.reason}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                            <button onClick={() => onApproveRoomChange(req)} className="text-green-600 hover:text-green-900 bg-green-100 px-3 py-1 rounded-md">Approve</button>
+                                            <button onClick={() => handleRejectRequest(req.id)} className="text-red-600 hover:text-red-900 bg-red-100 px-3 py-1 rounded-md">Reject</button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

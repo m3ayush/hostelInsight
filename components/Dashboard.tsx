@@ -17,6 +17,7 @@ const serviceOptions = [
     { name: 'Mess Menu', description: 'View the weekly meal plan', icon: 'Dinner', page: Page.MessMenu, color: 'bg-orange-100', textColor: 'text-orange-800' },
     { name: 'Hostel Complain', description: 'Submit any issues or complaints', icon: 'Hostel Complain', page: Page.Complaint, color: 'bg-red-100', textColor: 'text-red-800' },
     { name: 'Feedback', description: 'Share your experience with us', icon: 'Feedback', page: Page.Feedback, color: 'bg-yellow-100', textColor: 'text-yellow-800' },
+    { name: 'Personal Details', description: 'Update your contact and guardian info', icon: 'Personal Details', page: Page.PersonalDetails, color: 'bg-teal-100', textColor: 'text-teal-800' },
 ] as const;
 
 
@@ -65,7 +66,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigateTo, userName, needsSeedin
                         className={`group p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start text-left ${option.color} hover:scale-105 transform`}
                      >
                         <div className={`p-3 rounded-full bg-white mb-4`}>
-                             <Icon name={option.icon} className={`h-7 w-7 ${option.textColor}`} />
+                             <Icon name={option.icon as any} className={`h-7 w-7 ${option.textColor}`} />
                         </div>
                         <h3 className={`text-lg font-semibold ${option.textColor}`}>{option.name}</h3>
                         <p className={`text-sm ${option.textColor} opacity-80 mt-1`}>{option.description}</p>

@@ -8,6 +8,13 @@ export enum Page {
   Complaint,
   Feedback,
   LaundryService,
+  PersonalDetails,
+  // Admin Pages
+  AdminDashboard,
+  AdminRoomChangeRequests,
+  AdminComplaints,
+  AdminFeedback,
+  AdminStudentDatabase,
 }
 
 export interface Meal {
@@ -24,6 +31,17 @@ export interface Student {
   uid: string;
   name: string;
   studentId: string;
+}
+
+export interface StudentDetails {
+    uid: string;
+    fullName: string;
+    phoneNumber: string;
+    homeAddress: string;
+    fatherName: string;
+    fatherMobile: string;
+    motherName: string;
+    motherMobile: string;
 }
 
 export interface Room {

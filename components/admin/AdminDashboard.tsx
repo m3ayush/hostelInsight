@@ -1,50 +1,41 @@
-import React, { useState } from 'react';
-import RoomChangeRequests from './RoomChangeRequests';
-import ComplaintsView from './ComplaintsView';
-import FeedbackView from './FeedbackView';
-
-type AdminTab = 'requests' | 'complaints' | 'feedback';
+import React from 'react';
+import { Page } from '../../types';
+import Icon from '../icons/IconMap';
 
 interface AdminDashboardProps {
-    setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
-    onApproveRoomChange: (request: any) => Promise<void>;
+    navigateTo: (page: Page) => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ setNotification, onApproveRoomChange }) => {
-    const [activeTab, setActiveTab] = useState<AdminTab>('requests');
+const adminOptions = [
+    { name: 'Room Change Requests', description: 'Approve or reject room change requests', icon: 'Room Change', page: Page.AdminRoomChangeRequests, color: 'bg-blue-100', textColor: 'text-blue-800' },
+    { name: 'Hostel Complains', description: 'View and manage student complaints', icon: 'Hostel Complain', page: Page.AdminComplaints, color: 'bg-red-100', textColor: 'text-red-800' },
+    { name: 'Feedback', description: 'Review student feedback and ratings', icon: 'Feedback', page: Page.AdminFeedback, color: 'bg-yellow-100', textColor: 'text-yellow-800' },
+    { name: 'Student Database', description: 'View and manage student details', icon: 'Student Database', page: Page.AdminStudentDatabase, color: 'bg-teal-100', textColor: 'text-teal-800' },
+] as const;
 
-    const renderTabContent = () => {
-        switch (activeTab) {
-            case 'requests':
-                return <RoomChangeRequests setNotification={setNotification} onApproveRoomChange={onApproveRoomChange} />;
-            case 'complaints':
-                return <ComplaintsView setNotification={setNotification} />;
-            case 'feedback':
-                return <FeedbackView setNotification={setNotification} />;
-            default:
-                return null;
-        }
-    }
 
-    const TabButton: React.FC<{tabName: AdminTab, label: string}> = ({ tabName, label }) => (
-        <button
-            onClick={() => setActiveTab(tabName)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tabName ? 'bg-violet-600 text-white shadow' : 'text-gray-600 hover:bg-gray-200'}`}
-        >
-            {label}
-        </button>
-    );
-
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ navigateTo }) => {
     return (
         <div className="max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
-            <div className="flex space-x-2 border-b mb-6">
-                <TabButton tabName="requests" label="Room Change Requests" />
-                <TabButton tabName="complaints" label="Hostel Complains" />
-                <TabButton tabName="feedback" label="Feedback" />
+            <div className="mb-8">
+                <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Admin Panel</h1>
+                <p className="mt-2 text-lg text-gray-600">Manage all hostel operations from here.</p>
             </div>
-            <div>
-                {renderTabContent()}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {adminOptions.map(option => (
+                     <button
+                        key={option.name}
+                        onClick={() => navigateTo(option.page)}
+                        className={`group p-6 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col items-start text-left ${option.color} hover:scale-105 transform`}
+                     >
+                        <div className={`p-3 rounded-full bg-white mb-4`}>
+                             <Icon name={option.icon} className={`h-7 w-7 ${option.textColor}`} />
+                        </div>
+                        <h3 className={`text-lg font-semibold ${option.textColor}`}>{option.name}</h3>
+                        <p className={`text-sm ${option.textColor} opacity-80 mt-1`}>{option.description}</p>
+                    </button>
+                ))}
             </div>
         </div>
     );

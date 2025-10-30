@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { Page, Floor, Room } from '../types';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-// FIX: Corrected import path to be explicit.
+import { Page, Floor, Room, ComplaintRecord } from '../types';
+import { addDoc, collection, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface ComplaintProps {
@@ -19,6 +18,9 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
     const [selectedRoomId, setSelectedRoomId] = useState('');
     const [roomOptions, setRoomOptions] = useState<Room[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [pastComplaints, setPastComplaints] = useState<ComplaintRecord[]>([]);
+    const [isLoadingComplaints, setIsLoadingComplaints] = useState(true);
+
 
     useEffect(() => {
         if (selectedFloorId) {
@@ -30,6 +32,39 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
             setSelectedRoomId('');
         }
     }, [selectedFloorId, floors]);
+    
+    useEffect(() => {
+        if (!db) {
+            setIsLoadingComplaints(false);
+            return;
+        }
+        // FIX: Removed orderBy to avoid needing a composite index. Sorting is now done client-side.
+        const q = query(
+            collection(db, 'complaints'),
+            where('userId', '==', user.uid)
+        );
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const userComplaints = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ComplaintRecord));
+            // Sort complaints by creation date, newest first
+            userComplaints.sort((a, b) => {
+                const dateA = a.createdAt?.toDate() ?? 0;
+                const dateB = b.createdAt?.toDate() ?? 0;
+                if (dateA > dateB) return -1;
+                if (dateA < dateB) return 1;
+                return 0;
+            });
+            setPastComplaints(userComplaints);
+            setIsLoadingComplaints(false);
+        }, (error) => {
+            console.error("Error fetching past complaints:", error);
+            setNotification({ message: 'Failed to load your past complaints.', type: 'error' });
+            setIsLoadingComplaints(false);
+        });
+
+        return () => unsubscribe();
+    }, [user.uid, setNotification]);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -157,6 +192,33 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
                     </button>
                 </form>
             </div>
+
+            <div className="mt-12 bg-white p-8 rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Past Complaints</h2>
+                {isLoadingComplaints ? (
+                    <p>Loading your complaints...</p>
+                ) : pastComplaints.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">You have not submitted any complaints yet.</p>
+                ) : (
+                    <div className="space-y-4">
+                        {pastComplaints.map(complaint => (
+                             <div key={complaint.id} className="border border-gray-200 p-4 rounded-lg bg-slate-50">
+                                <div className="flex justify-between items-start gap-4">
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800">{complaint.category}</h3>
+                                        <p className="text-sm text-gray-500">{complaint.createdAt?.toDate().toLocaleString()}</p>
+                                    </div>
+                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${complaint.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                                        {complaint.status}
+                                    </span>
+                                </div>
+                                <p className="mt-2 text-gray-700">{complaint.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
         </div>
     );
 };
