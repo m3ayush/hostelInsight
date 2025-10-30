@@ -17,6 +17,20 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
     </div>
 );
 
+const formatTimestamp = (ts: any) => {
+    if (!ts) return '';
+    if (typeof ts.toDate === 'function') { // Firestore Timestamp object
+        return ts.toDate().toLocaleString();
+    }
+    if (ts.seconds) { // Serialized Firestore Timestamp
+        return new Date(ts.seconds * 1000).toLocaleString();
+    }
+    const date = new Date(ts); // ISO string or milliseconds
+    if (!isNaN(date.getTime())) {
+        return date.toLocaleString();
+    }
+    return 'Invalid Date';
+};
 
 const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification, navigateTo }) => {
     const [feedback, setFeedback] = useState<FeedbackRecord[]>([]);
@@ -64,7 +78,7 @@ const FeedbackView: React.FC<FeedbackViewProps> = ({ setNotification, navigateTo
                                             <StarRating rating={item.rating} />
                                         </div>
                                     </div>
-                                    <span className="text-xs text-gray-400">{item.createdAt?.toDate().toLocaleString()}</span>
+                                    <span className="text-xs text-gray-400">{formatTimestamp(item.createdAt)}</span>
                                 </div>
                                 {item.comment && <p className="mt-2 text-gray-700 italic">"{item.comment}"</p>}
                             </div>

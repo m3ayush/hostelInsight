@@ -1,22 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { Page, Floor, Room, ComplaintRecord } from '../types';
-import { addDoc, collection, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { Page, ComplaintRecord } from '../types';
+import { addDoc, collection, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 
 interface ComplaintProps {
     navigateTo: (page: Page) => void;
     user: User;
     setNotification: (notification: { message: string, type: 'success' | 'error' } | null) => void;
-    floors: Floor[];
+    floors: any[]; // Use 'any' to avoid circular dependency or define specific type
 }
+
+const formatTimestamp = (ts: any) => {
+    if (!ts) return '';
+    if (typeof ts.toDate === 'function') { // Firestore Timestamp object
+        return ts.toDate().toLocaleString();
+    }
+    if (ts.seconds) { // Serialized Firestore Timestamp
+        return new Date(ts.seconds * 1000).toLocaleString();
+    }
+    const date = new Date(ts); // ISO string or milliseconds
+    if (!isNaN(date.getTime())) {
+        return date.toLocaleString();
+    }
+    return 'Invalid Date';
+};
 
 const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification, floors }) => {
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [selectedFloorId, setSelectedFloorId] = useState('');
     const [selectedRoomId, setSelectedRoomId] = useState('');
-    const [roomOptions, setRoomOptions] = useState<Room[]>([]);
+    const [roomOptions, setRoomOptions] = useState<any[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [pastComplaints, setPastComplaints] = useState<ComplaintRecord[]>([]);
     const [isLoadingComplaints, setIsLoadingComplaints] = useState(true);
@@ -38,7 +53,6 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
             setIsLoadingComplaints(false);
             return;
         }
-        // FIX: Removed orderBy to avoid needing a composite index. Sorting is now done client-side.
         const q = query(
             collection(db, 'complaints'),
             where('userId', '==', user.uid)
@@ -46,13 +60,11 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const userComplaints = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ComplaintRecord));
-            // Sort complaints by creation date, newest first
+            // Sort client-side by creation date, newest first
             userComplaints.sort((a, b) => {
-                const dateA = a.createdAt?.toDate() ?? 0;
-                const dateB = b.createdAt?.toDate() ?? 0;
-                if (dateA > dateB) return -1;
-                if (dateA < dateB) return 1;
-                return 0;
+                const timeA = a.createdAt?.seconds ?? 0;
+                const timeB = b.createdAt?.seconds ?? 0;
+                return timeB - timeA;
             });
             setPastComplaints(userComplaints);
             setIsLoadingComplaints(false);
@@ -80,7 +92,7 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
         setIsSubmitting(true);
         try {
             const selectedFloor = floors.find(f => f.id === selectedFloorId);
-            const selectedRoom = selectedFloor?.rooms.find(r => r.id === selectedRoomId);
+            const selectedRoom = selectedFloor?.rooms.find((r: any) => r.id === selectedRoomId);
 
             await addDoc(collection(db, "complaints"), {
                 userId: user.uid,
@@ -206,7 +218,7 @@ const Complaint: React.FC<ComplaintProps> = ({ navigateTo, user, setNotification
                                 <div className="flex justify-between items-start gap-4">
                                     <div>
                                         <h3 className="font-semibold text-gray-800">{complaint.category}</h3>
-                                        <p className="text-sm text-gray-500">{complaint.createdAt?.toDate().toLocaleString()}</p>
+                                        <p className="text-sm text-gray-500">{formatTimestamp(complaint.createdAt)}</p>
                                     </div>
                                     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${complaint.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
                                         {complaint.status}

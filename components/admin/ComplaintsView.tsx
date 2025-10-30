@@ -8,6 +8,21 @@ interface ComplaintsViewProps {
     navigateTo: (page: Page) => void;
 }
 
+const formatTimestamp = (ts: any) => {
+    if (!ts) return '';
+    if (typeof ts.toDate === 'function') { // Firestore Timestamp object
+        return ts.toDate().toLocaleString();
+    }
+    if (ts.seconds) { // Serialized Firestore Timestamp
+        return new Date(ts.seconds * 1000).toLocaleString();
+    }
+    const date = new Date(ts); // ISO string or milliseconds
+    if (!isNaN(date.getTime())) {
+        return date.toLocaleString();
+    }
+    return 'Invalid Date';
+};
+
 const ComplaintsView: React.FC<ComplaintsViewProps> = ({ setNotification, navigateTo }) => {
     const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
     const [loading, setLoading] = useState(true);
@@ -98,7 +113,7 @@ const ComplaintsView: React.FC<ComplaintsViewProps> = ({ setNotification, naviga
                                         </p>
                                     </div>
                                     <div className="text-right flex-shrink-0">
-                                        <span className="text-xs text-gray-500">{complaint.createdAt?.toDate().toLocaleString()}</span>
+                                        <span className="text-xs text-gray-500">{formatTimestamp(complaint.createdAt)}</span>
                                     </div>
                                 </div>
                                 <div className="mt-2">

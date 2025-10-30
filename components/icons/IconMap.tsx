@@ -46,7 +46,11 @@ const MoonIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const ShirtIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99 .84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+);
+
+const ClockIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
 );
 
 
@@ -56,6 +60,7 @@ export const ICONS: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } =
   'Hostel Complain': MessageSquareIcon,
   'Feedback': StarIcon,
   'Laundry': ShirtIcon,
+  'Late Entry': ClockIcon,
   'Personal Details': UserIcon,
   'Student Database': UsersIcon,
   'user': UserIcon,
@@ -67,7 +72,7 @@ export const ICONS: { [key: string]: React.FC<React.SVGProps<SVGSVGElement>> } =
   'Dinner': MoonIcon
 };
 
-type IconName = 'Room Book' | 'Room Change' | 'Hostel Complain' | 'Feedback' | 'Laundry' | 'Personal Details' | 'Student Database' | 'user' | 'close' | 'building' | 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner';
+type IconName = 'Room Book' | 'Room Change' | 'Hostel Complain' | 'Feedback' | 'Laundry' | 'Late Entry' | 'Personal Details' | 'Student Database' | 'user' | 'close' | 'building' | 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
     name: IconName;

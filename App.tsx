@@ -25,6 +25,8 @@ import RoomChangeRequests from './components/admin/RoomChangeRequests';
 import ComplaintsView from './components/admin/ComplaintsView';
 import FeedbackView from './components/admin/FeedbackView';
 import StudentDatabase from './components/admin/StudentDatabase';
+import LateEntry from './components/LateEntry';
+import AdminLateEntryRequests from './components/admin/AdminLateEntryRequests';
 
 
 const FirebaseNotConfigured: React.FC = () => {
@@ -307,12 +309,16 @@ const App: React.FC = () => {
                 return <Feedback navigateTo={navigateTo} user={user} setNotification={setNotification} />;
             case Page.LaundryService:
                 return <LaundryService navigateTo={navigateTo} user={user} setNotification={setNotification} floors={floors} userBooking={userBooking} />;
+            case Page.LateEntry:
+                return <LateEntry navigateTo={navigateTo} user={user} setNotification={setNotification} />;
             case Page.PersonalDetails:
                 return <PersonalDetails navigateTo={navigateTo} user={user} setNotification={setNotification} />;
             
             // Admin Pages
             case Page.AdminDashboard:
                 return <AdminDashboard navigateTo={navigateTo} />;
+            case Page.AdminLateEntryRequests:
+                return <AdminLateEntryRequests navigateTo={navigateTo} setNotification={setNotification} />;
             case Page.AdminRoomChangeRequests:
                 return <RoomChangeRequests setNotification={setNotification} onApproveRoomChange={handleApproveRoomChange} navigateTo={navigateTo} />;
             case Page.AdminComplaints:

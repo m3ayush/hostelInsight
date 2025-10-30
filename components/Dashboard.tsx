@@ -18,6 +18,7 @@ const serviceOptions = [
     { name: 'Hostel Complain', description: 'Submit any issues or complaints', icon: 'Hostel Complain', page: Page.Complaint, color: 'bg-red-100', textColor: 'text-red-800' },
     { name: 'Feedback', description: 'Share your experience with us', icon: 'Feedback', page: Page.Feedback, color: 'bg-yellow-100', textColor: 'text-yellow-800' },
     { name: 'Personal Details', description: 'Update your contact and guardian info', icon: 'Personal Details', page: Page.PersonalDetails, color: 'bg-teal-100', textColor: 'text-teal-800' },
+    { name: 'Late Entry', description: 'Request for late entry to the hostel', icon: 'Late Entry', page: Page.LateEntry, color: 'bg-indigo-100', textColor: 'text-indigo-800' },
 ] as const;
 
 
