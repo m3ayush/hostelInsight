@@ -9,6 +9,7 @@ interface AdminDashboardProps {
 const adminOptions = [
     { name: 'Room Change Requests', description: 'Approve or reject room change requests', icon: 'Room Change', page: Page.AdminRoomChangeRequests, color: 'bg-blue-100', textColor: 'text-blue-800' },
     { name: 'Late Entry Requests', description: 'Manage student late entry requests', icon: 'Late Entry', page: Page.AdminLateEntryRequests, color: 'bg-indigo-100', textColor: 'text-indigo-800' },
+    { name: 'Leave Requests', description: 'Manage student leave applications', icon: 'Leave Apply', page: Page.AdminLeaveRequests, color: 'bg-cyan-100', textColor: 'text-cyan-800' },
     { name: 'Hostel Complains', description: 'View and manage student complaints', icon: 'Hostel Complain', page: Page.AdminComplaints, color: 'bg-red-100', textColor: 'text-red-800' },
     { name: 'Feedback', description: 'Review student feedback and ratings', icon: 'Feedback', page: Page.AdminFeedback, color: 'bg-yellow-100', textColor: 'text-yellow-800' },
     { name: 'Student Database', description: 'View and manage student details', icon: 'Student Database', page: Page.AdminStudentDatabase, color: 'bg-teal-100', textColor: 'text-teal-800' },

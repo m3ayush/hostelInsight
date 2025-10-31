@@ -9,10 +9,12 @@ export enum Page {
   Feedback,
   LaundryService,
   LateEntry,
+  LeaveApply,
   PersonalDetails,
   // Admin Pages
   AdminDashboard,
   AdminLateEntryRequests,
+  AdminLeaveRequests,
   AdminRoomChangeRequests,
   AdminComplaints,
   AdminFeedback,
@@ -136,6 +138,18 @@ export interface LateEntryRequest {
     userName: string;
     departureTime: any; // Firestore Timestamp
     expectedReturnTime: any; // Firestore Timestamp
+    reason: string;
+    status: 'Pending' | 'Approved' | 'Rejected';
+    createdAt: any; // Firestore Timestamp
+}
+
+export interface LeaveRequest {
+    id: string;
+    userId: string;
+    userName: string;
+    departureDateTime: any; // Firestore Timestamp
+    returnDateTime: any; // Firestore Timestamp
+    placeOfVisit: string;
     reason: string;
     status: 'Pending' | 'Approved' | 'Rejected';
     createdAt: any; // Firestore Timestamp
